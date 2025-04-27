@@ -41,18 +41,3 @@ This game features dynamic ball physics, various brick types, power-ups, scoring
 - [Raylib](https://www.raylib.com/) installed
 - C++ Compiler (Visual Studio recommended)
 
----
-
-## 🚀 How to Run
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/Ahmed-Elshaarawy/CS-4650-Project-Arkanoid.git
-   ```
-
-2. Open the `.sln` (Visual Studio Solution) file.
-
-3. Build and run the project!
-
----
