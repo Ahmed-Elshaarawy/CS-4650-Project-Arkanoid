@@ -1,0 +1,33 @@
+# Visual Studio
+.vs/
+*.vcxproj.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build output
+x64/
+Debug/
+Release/
+*.exe
+*.obj
+*.pdb
+*.ipch
+*.aps
+*.ncb
+*.log
+*.tlog
+*.idb
+*.opendb
+*.cache
+
+# Other
+*.bak
+*.tmp
+*.swp
+*.db
+*.pyc
+
+# VS Code folders (if you ever use it)
+.vscode/
