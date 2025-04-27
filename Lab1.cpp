@@ -6,6 +6,8 @@
 #include <vector>
 #include "PowerUp.h"
 
+using namespace std;
+
 const int screenWidth = 800;
 const int screenHeight = 450;
 
