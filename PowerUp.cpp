@@ -76,7 +76,7 @@ void PowerUp::draw() {
     if (!isCollected) {
         DrawRectangle(posX, posY, width, height, color);
         
-        // Draw a symbol or letter inside to indicate power-up type
+        // Draw a letter to indicate power-up type
         DrawText(getTypeName(), posX + 2, posY + 5, 10, BLACK);
     }
 }
@@ -99,7 +99,7 @@ void PowerUp::activate(Paddle& paddle, Ball& ball) {
             break;
         case EXTRA_LIFE:
             lives++;
-            isActive = false; // Instant effect, no need to deactivate later
+            isActive = false; // Instant effect
             break;
     }
 }
@@ -120,7 +120,6 @@ void PowerUp::deactivate(Paddle& paddle, Ball& ball) {
             ball.speedX /= 1.3f;
             ball.speedY /= 1.3f;
             break;
-        // Other power-ups will be handled in their respective systems
     }
 }
 
