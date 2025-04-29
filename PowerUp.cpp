@@ -22,7 +22,7 @@ PowerUp::PowerUp(float x, float y, PowerUpType powerUpType) {
             color = GREEN;
             break;
         case SHRINK_PADDLE:
-            duration = 8.0f;
+            duration = 5.0f;
             color = RED;
             break;
         case SLOW_BALL:
@@ -84,18 +84,18 @@ void PowerUp::draw() {
 void PowerUp::activate(Paddle& paddle, Ball& ball) {
     switch (type) {
         case EXPAND_PADDLE:
-            paddle.width *= 1.5f;
+            paddle.width *= 1.2f;
             break;
         case SHRINK_PADDLE:
-            paddle.width *= 0.7f;
+            paddle.width *= 0.8f;
             break;
         case SLOW_BALL:
-            ball.speedX *= 0.7f;
-            ball.speedY *= 0.7f;
+            ball.speedX *= 0.9f; //10% slower
+            ball.speedY *= 0.9f;
             break;
         case FAST_BALL:
-            ball.speedX *= 1.3f;
-            ball.speedY *= 1.3f;
+            ball.speedX *= 1.1f; //10% faster
+            ball.speedY *= 1.1f;
             break;
         case EXTRA_LIFE:
             lives++;
