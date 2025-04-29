@@ -82,7 +82,6 @@ void Ball::checkBallBrickCollision(Brick* bricks[5][10]) {
                     else if (brick->type == SPECIAL) score += 150;
                     if (brick->hasPowerUp) score += 50;
 
-                    spawnPowerUp(brick->posX + brick->width / 2, brick->posY + brick->height / 2);
 
 
                     brick->hit();
