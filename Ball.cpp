@@ -2,6 +2,9 @@
 #include "raylib.h"
 #include "Brick.h"
 
+
+extern void spawnPowerUp(float x, float y);
+
 extern int score;
 
 void Ball::update(Paddle& paddle, Brick* bricks[5][10])
@@ -78,6 +81,10 @@ void Ball::checkBallBrickCollision(Brick* bricks[5][10]) {
                     else if (brick->type == DURABLE) score += (brick->durability == 2 ? 50 : 25);
                     else if (brick->type == SPECIAL) score += 150;
                     if (brick->hasPowerUp) score += 50;
+<<<<<<< HEAD
+=======
+                    spawnPowerUp(brick->posX + brick->width / 2, brick->posY + brick->height / 2);
+>>>>>>> origin/master
 
                     brick->hit();
                     speedY = -speedY;
