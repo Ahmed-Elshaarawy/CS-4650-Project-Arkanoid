@@ -31,3 +31,5 @@ Release/
 
 # VS Code folders (if you ever use it)
 .vscode/
+highscore.txt
+ray.sln
