@@ -24,7 +24,6 @@ int highScore = 0;
 
 vector<PowerUp*> activePowerUps;
 
-// Forward declaration
 void spawnPowerUp(float x, float y);
 
 void initBricks() {
@@ -32,8 +31,8 @@ void initBricks() {
         for (int col = 0; col < columns; col++) {
             BrickType brickType = static_cast<BrickType>(GetRandomValue(0, 3));
             bricks[row][col] = new Brick(col * 75 + 65, row * 40 + 60, brickType);
-
             // Randomly assign power-ups
+
             if (GetRandomValue(0, 100) < 30) {
                 bricks[row][col]->hasPowerUp = true;
             }
@@ -123,9 +122,16 @@ void drawPowerUps() {
 
 int main(void)
 {
+
     InitWindow(screenWidth, screenHeight, "Raylib Brick Breaker Game");
 
     highScore = LoadHighScore();
+
+    InitWindow(screenWidth, screenHeight, "Arkanoid Game");
+
+    highScore = LoadHighScore();
+    Image icon = LoadImage("icon.png");
+    SetWindowIcon(icon);
 
     Ball ball1;
     Paddle paddle;
@@ -133,6 +139,13 @@ int main(void)
     initBricks();
 
     Texture2D heartTexture = LoadTexture("heart.png");
+
+    if (heartTexture.id == 0) {
+		printf("Failed to load heart texture\n");
+		return -1;
+	}
+    heartTexture.width = 20;
+    heartTexture.height = 20;
 
     SetTargetFPS(60);
 

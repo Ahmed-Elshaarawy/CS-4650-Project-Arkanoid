@@ -1,5 +1,7 @@
 #include "Brick.h"
-
+#include "raylib.h"
+#include "PowerUp.h"
+extern void spawnPowerUp(float x, float y);
 Brick::Brick(float x, float y, BrickType brickType)
 {
     posX = x;
@@ -65,7 +67,8 @@ void Brick::hit() {
 }
 
 void Brick::activateEffect() {
+
     if (hasPowerUp) {
-        // Trigger your power-up or effect here.
+        spawnPowerUp(posX + width / 2, posY + height / 2);
     }
 }
