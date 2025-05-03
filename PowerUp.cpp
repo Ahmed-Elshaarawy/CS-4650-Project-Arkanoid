@@ -3,6 +3,7 @@
 #include "Ball.h"
 #include <cstdlib>
 #include <algorithm>
+using namespace std;
 
 extern int lives;
 
@@ -26,14 +27,14 @@ PowerUp::PowerUp(float x, float y, PowerUpType powerUpType) {
             duration = 5.0f;
             color = RED;
             break;
-        case SLOW_BALL:
+       /* case SLOW_BALL:
             duration = 10.0f;
             color = BLUE;
             break;
         case FAST_BALL:
             duration = 8.0f;
             color = ORANGE;
-            break;
+            break;*/
         case EXTRA_LIFE:
             duration = 0.0f; // Instant effect
             color = PINK;
@@ -90,14 +91,14 @@ void PowerUp::activate(Paddle& paddle, Ball& ball) {
         case SHRINK_PADDLE:
             paddle.width = std::max(paddle.width * 0.85f, 50.0f); // 15% decrease, min 50px
             break;
-        case SLOW_BALL:
-            ball.speedX = ball.originalSpeedX * 0.85f;
-            ball.speedY = ball.originalSpeedY * 0.85f;
-            break;
-        case FAST_BALL:
-            ball.speedX = ball.originalSpeedX * 1.15f;
-            ball.speedY = ball.originalSpeedY * 1.15f;
-            break;
+        //case SLOW_BALL:
+        //    ball.speedX *= 0.85f; // 15% slower
+        //    ball.speedY *= 0.85f;
+        //    break;
+        //case FAST_BALL:
+        //    ball.speedX *= 1.15f; // 15% faster
+        //    ball.speedY *= 1.15f;
+        //    break;
         case EXTRA_LIFE:
             lives++;
             isActive = false; // Instant effect
@@ -113,11 +114,14 @@ void PowerUp::deactivate(Paddle& paddle, Ball& ball) {
         case SHRINK_PADDLE:
             paddle.width = std::max(paddle.width / 0.85f, 100.0f); // Reset to original size
             break;
-        case SLOW_BALL:
-        case FAST_BALL:
-            ball.speedX = ball.originalSpeedX;
-            ball.speedY = ball.originalSpeedY;
-            break;
+        //case SLOW_BALL:
+        //    ball.speedX /= 0.85f; // Reset to original speed
+        //    ball.speedY /= 0.85f;
+        //    break;
+        //case FAST_BALL:
+        //    ball.speedX /= 1.15f; // Reset to original speed
+        //    ball.speedY /= 1.15f;
+        //    break;
     }
 }
 
@@ -129,8 +133,8 @@ const char* PowerUp::getTypeName() {
     switch (type) {
         case EXPAND_PADDLE: return "E";
         case SHRINK_PADDLE: return "S";
-        case SLOW_BALL: return "SL";
-        case FAST_BALL: return "F";
+       /* case SLOW_BALL: return "SL";
+        case FAST_BALL: return "F";*/
         case EXTRA_LIFE: return "+";
         default: return "?";
     }

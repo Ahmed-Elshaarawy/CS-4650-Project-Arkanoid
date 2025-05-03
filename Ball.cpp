@@ -12,13 +12,14 @@ void Ball::update(Paddle& paddle, Brick* bricks[5][10])
     if (!isLaunched) {
         posX = paddle.posX + paddle.width / 2 - radius;
         posY = paddle.posY - radius;
-        return; 
+        return; // No need to continue if ball not launched
     }
 
+    // Move the ball
     posX += speedX;
     posY += speedY;
 
- 
+    // Handle wall collisions
     if (posX > GetScreenWidth() || posX <= 0) speedX *= -1;
     if (posY <= 0) speedY *= -1;
 
