@@ -8,6 +8,8 @@ public:
     float speedX, speedY;
     float radius;
     bool isLaunched;
+    float originalSpeedX;
+    float originalSpeedY;
 
     Ball();
     void update(Paddle& paddle, Brick* bricks[5][10]);  

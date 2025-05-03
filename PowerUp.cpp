@@ -2,6 +2,7 @@
 #include "Paddle.h"
 #include "Ball.h"
 #include <cstdlib>
+#include <algorithm>
 
 extern int lives;
 
@@ -84,18 +85,18 @@ void PowerUp::draw() {
 void PowerUp::activate(Paddle& paddle, Ball& ball) {
     switch (type) {
         case EXPAND_PADDLE:
-            paddle.width *= 1.2f;
+            paddle.width = std::min(paddle.width * 1.15f, 150.0f); // 15% increase, max 150px
             break;
         case SHRINK_PADDLE:
-            paddle.width *= 0.8f;
+            paddle.width = std::max(paddle.width * 0.85f, 50.0f); // 15% decrease, min 50px
             break;
         case SLOW_BALL:
-            ball.speedX *= 0.9f; //10% slower
-            ball.speedY *= 0.9f;
+            ball.speedX = ball.originalSpeedX * 0.85f;
+            ball.speedY = ball.originalSpeedY * 0.85f;
             break;
         case FAST_BALL:
-            ball.speedX *= 1.1f; //10% faster
-            ball.speedY *= 1.1f;
+            ball.speedX = ball.originalSpeedX * 1.15f;
+            ball.speedY = ball.originalSpeedY * 1.15f;
             break;
         case EXTRA_LIFE:
             lives++;
@@ -107,18 +108,15 @@ void PowerUp::activate(Paddle& paddle, Ball& ball) {
 void PowerUp::deactivate(Paddle& paddle, Ball& ball) {
     switch (type) {
         case EXPAND_PADDLE:
-            paddle.width /= 1.5f;
+            paddle.width = std::min(paddle.width / 1.15f, 100.0f); // Reset to original size
             break;
         case SHRINK_PADDLE:
-            paddle.width /= 0.7f;
+            paddle.width = std::max(paddle.width / 0.85f, 100.0f); // Reset to original size
             break;
         case SLOW_BALL:
-            ball.speedX /= 0.7f;
-            ball.speedY /= 0.7f;
-            break;
         case FAST_BALL:
-            ball.speedX /= 1.3f;
-            ball.speedY /= 1.3f;
+            ball.speedX = ball.originalSpeedX;
+            ball.speedY = ball.originalSpeedY;
             break;
     }
 }

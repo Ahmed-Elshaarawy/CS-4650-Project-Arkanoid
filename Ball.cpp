@@ -12,39 +12,41 @@ void Ball::update(Paddle& paddle, Brick* bricks[5][10])
     if (!isLaunched) {
         posX = paddle.posX + paddle.width / 2 - radius;
         posY = paddle.posY - radius;
-    }
-
-    if (isLaunched) {
-        posX += speedX;
-        posY += speedY;
-
-        checkBallBrickCollision(bricks);
-        checkPaddleCollision(paddle);
-    }
-
-    if (posX > GetScreenWidth() || posX <= 0) speedX *= -1;
-    if (posY <= 0) speedY *= -1;
-
-    if (posY >= GetScreenHeight()) {
-        posX = paddle.posX + paddle.width / 2 - radius;
-        posY = paddle.posY - radius;
-        speedX = 4;
-        speedY = 4;
-        isLaunched = false;
+        return; 
     }
 
     posX += speedX;
     posY += speedY;
 
+ 
+    if (posX > GetScreenWidth() || posX <= 0) speedX *= -1;
+    if (posY <= 0) speedY *= -1;
+
+ 
+    if (posY >= GetScreenHeight()) {
+        posX = paddle.posX + paddle.width / 2 - radius;
+        posY = paddle.posY - radius;
+        speedX = 4;
+        speedY = 4;
+        originalSpeedX = speedX;
+        originalSpeedY = speedY;
+        isLaunched = false;
+        return;
+    }
+
+  
     checkBallBrickCollision(bricks);
     checkPaddleCollision(paddle);
 }
+
 
 void Ball::Launch() {
     if (!isLaunched) {
         isLaunched = true;
         speedX = 2;
         speedY = -2;
+        originalSpeedX = speedX;
+        originalSpeedY = speedY;
     }
 }
 
@@ -75,6 +77,7 @@ void Ball::checkBallBrickCollision(Brick* bricks[5][10]) {
 
                     if (brick->type == INDESTRUCTIBLE) {
                         speedY = -speedY;
+                        speedX = -speedX;
                         continue;  
                     }
                     if (brick->type == STANDARD) score += 100;
@@ -103,6 +106,9 @@ Ball::Ball()
     posY = 3;
     speedX = 4;
     speedY = 4;
+    originalSpeedX = speedX;
+    originalSpeedY = speedY;
     radius = 10;
     isLaunched = false;
+
 }
