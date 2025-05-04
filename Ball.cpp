@@ -1,6 +1,7 @@
 #include "Ball.h"
 #include "raylib.h"
 #include "Brick.h"
+#include <stdio.h>
 #include "Paddle.h"
 
 extern int score;
@@ -111,11 +112,25 @@ void Ball::checkBallBrickCollision(Brick* bricks[5][10]) {
                 }
                 else {
                     switch (brick->type) {
-                    case STANDARD: score += 100; break;
-                    case DURABLE:  score += 50; break;
-                    case POWERUP:  score += 150; break;
-                    case SPECIAL:  score += 200; break;
-                    default: break;
+                    case STANDARD:
+                        score += 100;
+                        printf("Bonus: STANDARD brick destroyed. +100 points\n");
+                        break;
+                    case DURABLE:
+                        score += 50;
+                        printf("Bonus: DURABLE brick destroyed. +50 points\n");
+                        break;
+                    case POWERUP:
+                        score += 150;
+                        printf("Bonus: POWERUP brick destroyed. +150 points\n");
+                        break;
+                    case SPECIAL:
+                        score += 200;
+                        printf("Bonus: SPECIAL brick destroyed. +200 points\n");
+                        break;
+                    default:
+                        printf("Bonus: Unknown brick type. No points awarded\n");
+                        break;
                     }
                     if (brick->hasPowerUp) score += 50;
                 }
