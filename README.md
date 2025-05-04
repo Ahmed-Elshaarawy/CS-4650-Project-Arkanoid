@@ -19,8 +19,6 @@ This game features dynamic ball physics, various brick types, power-ups, scoring
 - **Power-Ups**:
   - Expand Paddle
   - Shrink Paddle
-  - Slow Ball
-  - Fast Ball
   - Extra Life
 - **Win Condition**: Destroy all breakable bricks.
 - **Lose Condition**: Ball falls below the paddle without lives left.
