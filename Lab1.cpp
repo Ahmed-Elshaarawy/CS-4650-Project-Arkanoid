@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <vector>
 #include "PowerUp.h"
+#include <algorithm>
 
 using namespace std;
 
@@ -23,6 +24,13 @@ int score = 0;
 int highScore = 0;
 
 vector<PowerUp*> activePowerUps;
+
+float lastBrickHitTime = 0.0f;
+int comboCount = 0;
+float comboTimeWindow = 0.5f;
+
+float levelStartTime = 0.0f;
+
 
 void spawnPowerUp(float x, float y);
 void initBricks();
@@ -54,6 +62,9 @@ void initBricks() {
             }
         }
     }
+    levelStartTime = GetTime();
+    comboCount = 0;
+    lastBrickHitTime = 0.0f;
 }
 
 bool checkWin() {
@@ -84,6 +95,8 @@ void resetBallPosition(Ball& ball1, Paddle& paddle) {
     ball1.posY = paddle.posY - ball1.radius;
     ball1.speedX = ball1.originalSpeedX;
     ball1.speedY = ball1.originalSpeedY;
+    comboCount = 0;
+    lastBrickHitTime = 0.0f;
 }
 
 void SaveHighScore(int score) {
@@ -148,8 +161,6 @@ void drawPowerUps() {
 int main(void)
 {
     InitWindow(screenWidth, screenHeight, "ARkanoid");
-   
-    
 
     highScore = LoadHighScore();
 
@@ -187,7 +198,6 @@ int main(void)
 
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !ball1.isLaunched) {
                 ball1.Launch();
-               
             }
 
             if (ball1.posY - ball1.radius >= screenHeight) {
@@ -201,10 +211,12 @@ int main(void)
             }
 
             winning = checkWin();
-
-            if (winning) {
-                printf("Level Complete! Press SPACE for next level (not implemented)\n");
+            if (score > highScore) {
+                highScore = score;
+                SaveHighScore(highScore);
             }
+
+         
         }
         else {
             if (IsKeyPressed(KEY_SPACE)) {
@@ -236,12 +248,16 @@ int main(void)
         DrawText(TextFormat("Score: %d", score), 10, 40, 20, DARKGRAY);
         DrawText(TextFormat("High Score: %d", highScore), 10, 70, 20, DARKGRAY);
 
+        if (comboCount > 0) {
+            DrawText(TextFormat("Combo: %d", comboCount), screenWidth - 150, 10, 20, DARKGRAY);
+        }
+
         if (gameOver) {
             DrawText("Game Over!", screenWidth / 2 - MeasureText("Game Over!", 40) / 2, screenHeight / 2 - 20, 40, RED);
         }
         else if (winning) {
-            DrawText("YOU WON !", screenWidth / 2 - MeasureText("Level Complete!", 40) / 2, screenHeight / 2 - 20, 40, GREEN);
-           
+            DrawText("YOU WON !", screenWidth / 2 - MeasureText("YOU WON !", 40) / 2, screenHeight / 2 - 20, 40, GREEN);
+        
         }
 
         EndDrawing();
@@ -261,10 +277,10 @@ int main(void)
             delete powerUp;
         }
     }
+
     activePowerUps.clear();
 
     UnloadTexture(heartTexture);
- 
 
     CloseWindow();
 

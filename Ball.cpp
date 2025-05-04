@@ -3,16 +3,23 @@
 #include "Brick.h"
 #include <stdio.h>
 #include "Paddle.h"
+#include <cmath>
+#include <iostream>
 
 extern int score;
 extern void spawnPowerUp(float x, float y);
+
+extern float lastBrickHitTime;
+extern int comboCount;
+extern  float comboTimeWindow;
+
 
 Ball::Ball()
 {
     posX = 0;
     posY = 0;
-    speedX = 10;
-    speedY = 10;
+    speedX = 100;
+    speedY = 100;
     originalSpeedX = speedX;
     originalSpeedY = speedY;
     radius = 10;
@@ -27,8 +34,8 @@ void Ball::update(Paddle& paddle, Brick* bricks[5][10])
         return;
     }
 
-    posX += speedX;
-    posY += speedY;
+    posX += speedX*2;
+    posY += speedY*2;
 
     if (posX - radius <= 0) {
         posX = radius;
@@ -55,23 +62,71 @@ void Ball::Launch() {
         speedY = -2;
         originalSpeedX = speedX;
         originalSpeedY = speedY;
+
+        comboCount = 0;
+        lastBrickHitTime = 0.0f;
     }
 }
+
+//void Ball::checkPaddleCollision(Paddle& paddle)
+//{
+//    if (posY + radius >= paddle.posY && posY + radius <= paddle.posY + paddle.height &&
+//        posX + radius >= paddle.posX && posX - radius <= paddle.posX + paddle.width) {
+//
+//        if (posY + radius > paddle.posY) {
+//            posY = paddle.posY - radius;
+//        }
+//
+//        speedY *= -1;
+//
+//        comboCount = 0;
+//        lastBrickHitTime = 0.0f;
+//    }
+//}
 
 void Ball::checkPaddleCollision(Paddle& paddle)
 {
-    if (posY + radius >= paddle.posY && posY + radius <= paddle.posY + paddle.height &&
-        posX + radius >= paddle.posX && posX - radius <= paddle.posX + paddle.width) {
+    
+    Vector2 ballPosition = { posX, posY };
+    Rectangle paddleRect = { paddle.posX, paddle.posY, paddle.width, paddle.height };
+    float paddleDeflectionStrength = 5.0f;
 
-        if (posY + radius > paddle.posY) {
-            posY = paddle.posY - radius;
+   
+    if (CheckCollisionCircleRec(ballPosition, radius, paddleRect))
+    {
+  
+        if (speedY > 0)
+        {
+          
+            speedY *= -1;
+
+       
+            float paddleCenterX = paddle.posX + paddle.width / 2.0f;
+      
+            float hitOffsetFromCenter = posX - paddleCenterX;
+      
+            float normalizedHitOffset = hitOffsetFromCenter / (paddle.width / 2.0f);
+            
+            speedX = normalizedHitOffset * paddleDeflectionStrength;
+
+            if (posY + radius > paddle.posY) {
+                posY = paddle.posY - radius;
+            }
+
+
+            comboCount = 0;
+            lastBrickHitTime = 0.0f;
         }
-
-        speedY = -speedY;
+        
     }
 }
 
+
+
+
 void Ball::checkBallBrickCollision(Brick* bricks[5][10]) {
+    float currentTime = GetTime();
+
     for (int row = 0; row < 5; row++) {
         for (int col = 0; col < 10; col++) {
             Brick* brick = bricks[row][col];
@@ -80,45 +135,54 @@ void Ball::checkBallBrickCollision(Brick* bricks[5][10]) {
                 continue;
             }
 
-            if (posX + radius >= brick->posX &&
+            bool collision = (posX + radius >= brick->posX &&
                 posX - radius <= brick->posX + brick->width &&
                 posY + radius >= brick->posY &&
-                posY - radius <= brick->posY + brick->height) {
+                posY - radius <= brick->posY + brick->height);
+
+            if (collision) {
+                float brickCenterX = brick->posX + brick->width / 2.0f;
+                float brickCenterY = brick->posY + brick->height / 2.0f;
+                float deltaX = posX - brickCenterX;
+                float deltaY = posY - brickCenterY;
+
+                bool hitHorizontal = (fabsf(deltaX) * brick->height > fabsf(deltaY) * brick->width);
+
+                if (hitHorizontal) {
+                    speedX *= -1;
+                }
+                else {
+                    speedY *= -1;
+                }
 
                 if (brick->type == INDESTRUCTIBLE) {
-                    bool hitFromSides = (posX - radius <= brick->posX || posX + radius >= brick->posX + brick->width);
-                    bool hitFromTopBottom = (posY - radius <= brick->posY || posY + radius >= brick->posY + brick->height);
-
-                    if (hitFromSides && hitFromTopBottom) {
-                        speedX *= -1;
-                        speedY *= -1;
-                    }
-                    else if (hitFromSides) {
-                        speedX *= -1;
-                    }
-                    else if (hitFromTopBottom) {
-                        speedY *= -1;
-                    }
-                    else {
-                        speedY *= -1;
-                    }
                     return;
                 }
 
+                bool wasNotDestroyed = !brick->isDestroyed;
+
                 brick->hit(bricks);
 
-                if (!brick->isDestroyed) {
-                    if (brick->type == DURABLE) score += 25;
-                }
-                else {
+                if (brick->isDestroyed && wasNotDestroyed) {
+                    if (currentTime - lastBrickHitTime <= comboTimeWindow) {
+                        comboCount++;
+                        score += comboCount * 10;
+                        printf("Combo x%d! Bonus: %d\n", comboCount, comboCount * 10);
+                    }
+                    else {
+                        comboCount = 1;
+                        printf("New Combo x%d!\n", comboCount);
+                    }
+                    lastBrickHitTime = currentTime;
+
                     switch (brick->type) {
                     case STANDARD:
                         score += 100;
                         printf("Bonus: STANDARD brick destroyed. +100 points\n");
                         break;
                     case DURABLE:
-                        score += 50;
-                        printf("Bonus: DURABLE brick destroyed. +50 points\n");
+                        score += 75;
+                        printf("Bonus: DURABLE brick destroyed. +75 points\n");
                         break;
                     case POWERUP:
                         score += 150;
@@ -129,13 +193,20 @@ void Ball::checkBallBrickCollision(Brick* bricks[5][10]) {
                         printf("Bonus: SPECIAL brick destroyed. +200 points\n");
                         break;
                     default:
-                        printf("Bonus: Unknown brick type. No points awarded\n");
+                        printf("Bonus: Unknown brick type destroyed. No points awarded\n");
                         break;
                     }
-                    if (brick->hasPowerUp) score += 50;
+                    if (brick->hasPowerUp || brick->type == POWERUP) {
+                        score += 50;
+                        printf("Bonus: Powerup collected. +50 points\n");
+                    }
                 }
-
-                speedY *= -1;
+                else if (wasNotDestroyed && !brick->isDestroyed && brick->type == DURABLE) {
+                    score += 25;
+                    printf("Bonus: DURABLE brick hit. +25 points\n");
+                    comboCount = 0;
+                    lastBrickHitTime = 0.0f;
+                }
 
                 return;
             }
