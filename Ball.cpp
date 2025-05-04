@@ -34,8 +34,8 @@ void Ball::update(Paddle& paddle, Brick* bricks[5][10])
         return;
     }
 
-    posX += speedX*2;
-    posY += speedY*2;
+    posX += speedX;
+    posY += speedY;
 
     if (posX - radius <= 0) {
         posX = radius;
@@ -68,58 +68,32 @@ void Ball::Launch() {
     }
 }
 
-//void Ball::checkPaddleCollision(Paddle& paddle)
-//{
-//    if (posY + radius >= paddle.posY && posY + radius <= paddle.posY + paddle.height &&
-//        posX + radius >= paddle.posX && posX - radius <= paddle.posX + paddle.width) {
-//
-//        if (posY + radius > paddle.posY) {
-//            posY = paddle.posY - radius;
-//        }
-//
-//        speedY *= -1;
-//
-//        comboCount = 0;
-//        lastBrickHitTime = 0.0f;
-//    }
-//}
-
 void Ball::checkPaddleCollision(Paddle& paddle)
 {
-    
-    Vector2 ballPosition = { posX, posY };
-    Rectangle paddleRect = { paddle.posX, paddle.posY, paddle.width, paddle.height };
     float paddleDeflectionStrength = 5.0f;
+    if (posY + radius >= paddle.posY && posY + radius <= paddle.posY + paddle.height &&
+        posX + radius >= paddle.posX && posX - radius <= paddle.posX + paddle.width) {
 
-   
-    if (CheckCollisionCircleRec(ballPosition, radius, paddleRect))
-    {
-  
-        if (speedY > 0)
-        {
-          
-            speedY *= -1;
+            if (speedY > 0) 
+            {
+                speedY *= -1;
+                float paddleCenterX = paddle.posX + paddle.width / 2.0f;
+                float hitOffsetFromCenter = posX - paddleCenterX;
+                float normalizedHitOffset = hitOffsetFromCenter / (paddle.width / 2.0f);
+                speedX = normalizedHitOffset * paddleDeflectionStrength;
 
-       
-            float paddleCenterX = paddle.posX + paddle.width / 2.0f;
-      
-            float hitOffsetFromCenter = posX - paddleCenterX;
-      
-            float normalizedHitOffset = hitOffsetFromCenter / (paddle.width / 2.0f);
-            
-            speedX = normalizedHitOffset * paddleDeflectionStrength;
-
-            if (posY + radius > paddle.posY) {
-                posY = paddle.posY - radius;
-            }
+                if (posY + radius > paddle.posY) {
+                    posY = paddle.posY - radius;
+                }
 
 
-            comboCount = 0;
-            lastBrickHitTime = 0.0f;
+                comboCount = 0;
+                lastBrickHitTime = 0.0f;
         }
-        
     }
 }
+
+
 
 
 
