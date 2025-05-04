@@ -2,7 +2,7 @@
 #include "raylib.h" 
 
 
-enum BrickType { STANDARD, DURABLE, INDESTRUCTIBLE, SPECIAL, POWERUP };
+enum BrickType { STANDARD, DURABLE, INDESTRUCTIBLE, SPECIAL, POWERUP  };
 
 
 class Brick
@@ -20,6 +20,7 @@ public:
     Brick(float x, float y, BrickType brickType);
 
     void draw();
-    void hit();
+    void hit(Brick* bricks[5][10]);
     void activateEffect();
+    void specialEffect(Brick* bricks[5][10]);
 };

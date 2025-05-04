@@ -1,45 +1,51 @@
 #include "Ball.h"
 #include "raylib.h"
 #include "Brick.h"
-
-
-extern void spawnPowerUp(float x, float y);
+#include "Paddle.h"
 
 extern int score;
+extern void spawnPowerUp(float x, float y);
+
+Ball::Ball()
+{
+    posX = 0;
+    posY = 0;
+    speedX = 10;
+    speedY = 10;
+    originalSpeedX = speedX;
+    originalSpeedY = speedY;
+    radius = 10;
+    isLaunched = false;
+}
 
 void Ball::update(Paddle& paddle, Brick* bricks[5][10])
 {
     if (!isLaunched) {
-        posX = paddle.posX + paddle.width / 2 - radius;
+        posX = paddle.posX + paddle.width / 2;
         posY = paddle.posY - radius;
-        return; // No need to continue if ball not launched
-    }
-
-    // Move the ball
-    posX += speedX;
-    posY += speedY;
-
-    // Handle wall collisions
-    if (posX > GetScreenWidth() || posX <= 0) speedX *= -1;
-    if (posY <= 0) speedY *= -1;
-
- 
-    if (posY >= GetScreenHeight()) {
-        posX = paddle.posX + paddle.width / 2 - radius;
-        posY = paddle.posY - radius;
-        speedX = 4;
-        speedY = 4;
-        originalSpeedX = speedX;
-        originalSpeedY = speedY;
-        isLaunched = false;
         return;
     }
 
-  
+    posX += speedX;
+    posY += speedY;
+
+    if (posX - radius <= 0) {
+        posX = radius;
+        speedX *= -1;
+    }
+    if (posX + radius >= GetScreenWidth()) {
+        posX = GetScreenWidth() - radius;
+        speedX *= -1;
+    }
+    if (posY - radius <= 0) {
+        posY = radius;
+        speedY *= -1;
+    }
+
     checkBallBrickCollision(bricks);
+
     checkPaddleCollision(paddle);
 }
-
 
 void Ball::Launch() {
     if (!isLaunched) {
@@ -53,17 +59,14 @@ void Ball::Launch() {
 
 void Ball::checkPaddleCollision(Paddle& paddle)
 {
-    if (posY + radius >= paddle.posY && posY + radius <= paddle.posY + paddle.height) {
-        if (posX >= paddle.posX && posX <= paddle.posX + paddle.width) {
-            speedY = -speedY;
+    if (posY + radius >= paddle.posY && posY + radius <= paddle.posY + paddle.height &&
+        posX + radius >= paddle.posX && posX - radius <= paddle.posX + paddle.width) {
 
-            float paddleCenter = paddle.posX + paddle.width / 2;
-            float hitPosition = posX - paddleCenter;
-
-            if (posY + radius > paddle.posY) {
-                posY = paddle.posY - radius;
-            }
+        if (posY + radius > paddle.posY) {
+            posY = paddle.posY - radius;
         }
+
+        speedY = -speedY;
     }
 }
 
@@ -72,25 +75,54 @@ void Ball::checkBallBrickCollision(Brick* bricks[5][10]) {
         for (int col = 0; col < 10; col++) {
             Brick* brick = bricks[row][col];
 
-            if (!brick->isDestroyed) {
-                if (posX + radius >= brick->posX && posX - radius <= brick->posX + brick->width &&
-                    posY + radius >= brick->posY && posY - radius <= brick->posY + brick->height) {
+            if (brick == nullptr || brick->isDestroyed) {
+                continue;
+            }
 
-                    if (brick->type == INDESTRUCTIBLE) {
-                        speedY = -speedY;
-                        speedX = -speedX;
-                        continue;  
+            if (posX + radius >= brick->posX &&
+                posX - radius <= brick->posX + brick->width &&
+                posY + radius >= brick->posY &&
+                posY - radius <= brick->posY + brick->height) {
+
+                if (brick->type == INDESTRUCTIBLE) {
+                    bool hitFromSides = (posX - radius <= brick->posX || posX + radius >= brick->posX + brick->width);
+                    bool hitFromTopBottom = (posY - radius <= brick->posY || posY + radius >= brick->posY + brick->height);
+
+                    if (hitFromSides && hitFromTopBottom) {
+                        speedX *= -1;
+                        speedY *= -1;
                     }
-                    if (brick->type == STANDARD) score += 100;
-                    else if (brick->type == DURABLE) score += (brick->durability == 2 ? 50 : 25);
-                    else if (brick->type == SPECIAL) score += 150;
-                    if (brick->hasPowerUp) score += 50;
-
-
-
-                    brick->hit();
-                    speedY = -speedY;
+                    else if (hitFromSides) {
+                        speedX *= -1;
+                    }
+                    else if (hitFromTopBottom) {
+                        speedY *= -1;
+                    }
+                    else {
+                        speedY *= -1;
+                    }
+                    return;
                 }
+
+                brick->hit(bricks);
+
+                if (!brick->isDestroyed) {
+                    if (brick->type == DURABLE) score += 25;
+                }
+                else {
+                    switch (brick->type) {
+                    case STANDARD: score += 100; break;
+                    case DURABLE:  score += 50; break;
+                    case POWERUP:  score += 150; break;
+                    case SPECIAL:  score += 200; break;
+                    default: break;
+                    }
+                    if (brick->hasPowerUp) score += 50;
+                }
+
+                speedY *= -1;
+
+                return;
             }
         }
     }
@@ -98,18 +130,5 @@ void Ball::checkBallBrickCollision(Brick* bricks[5][10]) {
 
 void Ball::draw()
 {
-    DrawCircle(posX, posY, radius, BLACK);
-}
-
-Ball::Ball()
-{
-    posX = 2;
-    posY = 3;
-    speedX = 4;
-    speedY = 4;
-    originalSpeedX = speedX;
-    originalSpeedY = speedY;
-    radius = 10;
-    isLaunched = false;
-
+    DrawCircle((int)posX, (int)posY, (int)radius, BLACK);
 }

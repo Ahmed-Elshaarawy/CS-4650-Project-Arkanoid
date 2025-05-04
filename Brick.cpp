@@ -1,7 +1,9 @@
 #include "Brick.h"
 #include "raylib.h"
 #include "PowerUp.h"
+
 extern void spawnPowerUp(float x, float y);
+
 Brick::Brick(float x, float y, BrickType brickType)
 {
     posX = x;
@@ -15,14 +17,13 @@ Brick::Brick(float x, float y, BrickType brickType)
     switch (type) {
     case STANDARD:
         durability = 1;
-        hasPowerUp = true;
         color = MAGENTA;
         break;
     case DURABLE:
         durability = 2;
         color = RED;
         break;
-    case SPECIAL:
+    case POWERUP:
         durability = 1;
         hasPowerUp = true;
         color = BLUE;
@@ -31,12 +32,23 @@ Brick::Brick(float x, float y, BrickType brickType)
         durability = -1;
         color = GRAY;
         break;
+    case SPECIAL:
+        durability = 1;
+        hasPowerUp = false;
+        color = BLACK;
+        break;
+    default:
+        durability = 1;
+        color = WHITE;
+        break;
     }
 }
 
 void Brick::draw()
 {
-    if (isDestroyed) return;
+    if (isDestroyed) {
+        return;
+    }
 
     if (type == DURABLE) {
         switch (durability) {
@@ -45,30 +57,52 @@ void Brick::draw()
         }
     }
 
-    DrawRectangle(posX, posY, width, height, color);
+    DrawRectangle((int)posX, (int)posY, (int)width, (int)height, color);
 }
 
-void Brick::hit() {
-    if (type == INDESTRUCTIBLE) return;
+void Brick::hit(Brick* bricks[5][10]) {
+    if (type == INDESTRUCTIBLE) {
+        return;
+    }
 
-    if (type == DURABLE) {
-        durability--;
-        if (durability <= 0) {
-            isDestroyed = true;
+    durability--;
+
+    if (durability <= 0) {
+        isDestroyed = true;
+
+        if (type == POWERUP || hasPowerUp) {
+            activateEffect();
         }
-    }
-    else if (type == STANDARD) {
-        isDestroyed = true;
-    }
-    else if (type == SPECIAL) {
-        isDestroyed = true;
-        activateEffect();
+        if (type == SPECIAL) {
+            specialEffect(bricks);
+        }
     }
 }
 
 void Brick::activateEffect() {
-
-    if (hasPowerUp) {
+    if (hasPowerUp || type == POWERUP) {
         spawnPowerUp(posX + width / 2, posY + height / 2);
+    }
+}
+
+void Brick::specialEffect(Brick* bricks[5][10]) {
+    int centerRow = (int)((posY - 60) / 40);
+    int centerCol = (int)((posX - 65) / 75);
+
+    for (int r = centerRow - 1; r <= centerRow + 1; ++r) {
+        for (int c = centerCol - 1; c <= centerCol + 1; ++c) {
+            if (r >= 0 && r < 5 && c >= 0 && c < 10) {
+                Brick* neighborBrick = bricks[r][c];
+                if (neighborBrick != nullptr) {
+                    if (!neighborBrick->isDestroyed && neighborBrick->type != INDESTRUCTIBLE) {
+                        neighborBrick->isDestroyed = true;
+
+                        if (neighborBrick->hasPowerUp || neighborBrick->type == POWERUP) {
+                            neighborBrick->activateEffect();
+                        }
+                    }
+                }
+            }
+        }
     }
 }
