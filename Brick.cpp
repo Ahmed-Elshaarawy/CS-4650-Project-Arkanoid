@@ -4,6 +4,11 @@
 
 extern void spawnPowerUp(float x, float y);
 
+/*
+* @param x is the pos of the block on the X axis on the screen
+* @param y is the pos of the block on the Y axis on the screen
+* @param brickType is an Enum value that specifies the type of block ex: STANDARD, INDESTRUCTIBLE
+*/
 Brick::Brick(float x, float y, BrickType brickType)
 {
     posX = x;
@@ -59,7 +64,7 @@ void Brick::draw()
 
     DrawRectangle((int)posX, (int)posY, (int)width, (int)height, color);
 }
-
+// @param bricks takes a ptr to a brick 2D arr
 void Brick::hit(Brick* bricks[5][10]) {
     if (type == INDESTRUCTIBLE) {
         return;
