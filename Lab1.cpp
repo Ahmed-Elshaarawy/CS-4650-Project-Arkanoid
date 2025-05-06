@@ -62,7 +62,7 @@ void initBricks() {
             }
         }
     }
- /*   levelStartTime = GetTime();*/
+ 
     comboCount = 0;
     lastBrickHitTime = 0.0f;
 }
