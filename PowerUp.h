@@ -27,8 +27,8 @@ public:
     PowerUp(float x, float y, PowerUpType powerUpType);
     void update(Paddle& paddle);
     void draw();
-    void activate(Paddle& paddle, Ball& ball);
-    void deactivate(Paddle& paddle, Ball& ball);
+    void activate(Paddle& paddle);
+    void deactivate(Paddle& paddle);
     bool isExpired();
     const char* getTypeName();
 };
