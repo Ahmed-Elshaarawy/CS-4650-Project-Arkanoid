@@ -83,6 +83,9 @@ void PowerUp::activate(Paddle& paddle, Ball& ball) {
         lives++;
         isActive = false;
         break;
+    default:
+        break;
+
     }
 }
 
