@@ -29,7 +29,7 @@ float lastBrickHitTime = 0.0f;
 int comboCount = 0;
 float comboTimeWindow = 0.5f;
 
-float levelStartTime = 0.0f;
+//float levelStartTime = 0.0f;
 
 
 void spawnPowerUp(float x, float y);
@@ -39,7 +39,7 @@ void drawBricks();
 void resetBallPosition(Ball& ball1, Paddle& paddle);
 void SaveHighScore(int score);
 int LoadHighScore();
-void updatePowerUps(Paddle& paddle, Ball& mainBall);
+void updatePowerUps(Paddle& paddle);
 void drawPowerUps();
 
 
@@ -62,7 +62,7 @@ void initBricks() {
             }
         }
     }
-    levelStartTime = GetTime();
+ /*   levelStartTime = GetTime();*/
     comboCount = 0;
     lastBrickHitTime = 0.0f;
 }
@@ -125,20 +125,20 @@ void spawnPowerUp(float x, float y) {
     activePowerUps.push_back(powerUp);
 }
 
-void updatePowerUps(Paddle& paddle, Ball& mainBall) {
+void updatePowerUps(Paddle& paddle) {
     for (size_t i = 0; i < activePowerUps.size(); ++i) {
         PowerUp* powerUp = activePowerUps[i];
 
         powerUp->update(paddle);
 
         if (powerUp->isCollected && !powerUp->isActive) {
-            powerUp->activate(paddle, mainBall);
+            powerUp->activate(paddle);
             powerUp->isActive = true;
             printf("Activating power-up type: %d\n", powerUp->type);
         }
 
         if (powerUp->isActive && powerUp->isExpired()) {
-            powerUp->deactivate(paddle, mainBall);
+            powerUp->deactivate(paddle);
             powerUp->isActive = false;
         }
 
@@ -194,7 +194,7 @@ int main(void)
         if (!winning) {
             ball1.update(paddle, bricks);
             paddle.update();
-            updatePowerUps(paddle, ball1);
+            updatePowerUps(paddle);
 
             if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && !ball1.isLaunched) {
                 ball1.Launch();

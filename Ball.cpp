@@ -25,18 +25,24 @@ Ball::Ball()
     radius = 10;
     isLaunched = false;
 }
-
+/*
+* @param paddle is a refrence for the paddle object that the ball interacts with to check for collisions between it and the ball
+* @param bricks is a 2D arr of brick ptrs and holds the bricks in the game, which the ball interacts with it to check the collision between the brick and the ball during runtime
+*/
 void Ball::update(Paddle& paddle, Brick* bricks[5][10])
 {
     if (!isLaunched) {
-        posX = paddle.posX + paddle.width / 2;
+        // sets the X pos of the ball to the center of the paddle
+        posX = paddle.posX + paddle.width / 2; 
+        // positions the Y pos of the ball just to be above the paddle
         posY = paddle.posY - radius;
         return;
     }
-
+    // update the ball position according to the current speed
     posX += speedX;
     posY += speedY;
 
+    // ball pos check so it won't go beyond the screen boundaries, and bounce back upon reaching the window boundaries
     if (posX - radius <= 0) {
         posX = radius;
         speedX *= -1;
@@ -56,6 +62,9 @@ void Ball::update(Paddle& paddle, Brick* bricks[5][10])
 }
 
 void Ball::Launch() {
+    /*
+    * if the isLaunch is not set, the isLaunched bool flag is changed to true, and set the ball speed on the X & Y axis to 2, and make it the original speed of the ball
+    */
     if (!isLaunched) {
         isLaunched = true;
         speedX = 2;
@@ -74,18 +83,21 @@ void Ball::checkPaddleCollision(Paddle& paddle)
     if (posY + radius >= paddle.posY && posY + radius <= paddle.posY + paddle.height &&
         posX + radius >= paddle.posX && posX - radius <= paddle.posX + paddle.width) {
 
-            if (speedY > 0) 
+            if (speedY > 0) // check if the ball heading downwards
             {
+                // reverse the speed of the ball, simulating a bouncing effect as a reaction to the collision
                 speedY *= -1;
+                // get the center of the paddle horizonatlly or on the X axis
                 float paddleCenterX = paddle.posX + paddle.width / 2.0f;
                 float hitOffsetFromCenter = posX - paddleCenterX;
                 float normalizedHitOffset = hitOffsetFromCenter / (paddle.width / 2.0f);
                 speedX = normalizedHitOffset * paddleDeflectionStrength;
 
+                // checks if the ball collided with the paddle on the Y axis, then adjust the ball location to rest above the paddle
                 if (posY + radius > paddle.posY) {
                     posY = paddle.posY - radius;
                 }
-
+                
 
                 comboCount = 0;
                 lastBrickHitTime = 0.0f;
@@ -99,6 +111,7 @@ void Ball::checkPaddleCollision(Paddle& paddle)
 
 
 void Ball::checkBallBrickCollision(Brick* bricks[5][10]) {
+    //used for tracking the time between brick hits, to account for combos
     float currentTime = GetTime();
 
     for (int row = 0; row < 5; row++) {
@@ -106,22 +119,24 @@ void Ball::checkBallBrickCollision(Brick* bricks[5][10]) {
             Brick* brick = bricks[row][col];
 
             if (brick == nullptr || brick->isDestroyed) {
-                continue;
+                continue; // skip and move to the next brick
             }
 
             bool collision = (posX + radius >= brick->posX &&
                 posX - radius <= brick->posX + brick->width &&
                 posY + radius >= brick->posY &&
-                posY - radius <= brick->posY + brick->height);
+                posY - radius <= brick->posY + brick->height); // condition to check for the center of the ball is colliding with the brick
 
             if (collision) {
                 float brickCenterX = brick->posX + brick->width / 2.0f;
                 float brickCenterY = brick->posY + brick->height / 2.0f;
+                // the deltas are use to calculate the distance between the ball's center and the brick's on X or Y axis
                 float deltaX = posX - brickCenterX;
                 float deltaY = posY - brickCenterY;
 
                 bool hitHorizontal = (fabsf(deltaX) * brick->height > fabsf(deltaY) * brick->width);
 
+                // bounce the ball in the reversed direction either on X or Y axis, as a reaction resulting form the hit
                 if (hitHorizontal) {
                     speedX *= -1;
                 }

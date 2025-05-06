@@ -71,13 +71,14 @@ void PowerUp::draw() {
     }
 }
 
-void PowerUp::activate(Paddle& paddle, Ball& ball) {
+void PowerUp::activate(Paddle& paddle) {
     switch (type) {
     case EXPAND_PADDLE:
-        paddle.width = std::min(paddle.width * 2.0f, 150.0f);
+        paddle.width = std::min(paddle.width * 2.0f, 150.0f); // limitiing the size of the paddle to make it not too big
+   
         break;
     case SHRINK_PADDLE:
-        paddle.width = std::max(paddle.width * 0.6f, 50.0f);
+        paddle.width = std::max(paddle.width * 0.6f, 50.0f); //same for shrink 
         break;
     case EXTRA_LIFE:
         lives++;
@@ -89,7 +90,7 @@ void PowerUp::activate(Paddle& paddle, Ball& ball) {
     }
 }
 
-void PowerUp::deactivate(Paddle& paddle, Ball& ball) {
+void PowerUp::deactivate(Paddle& paddle) {
     switch (type) {
     case EXPAND_PADDLE:
       
